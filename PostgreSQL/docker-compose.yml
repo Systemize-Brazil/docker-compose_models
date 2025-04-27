@@ -9,12 +9,13 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-123456}
+      POSTGRES_DB: ${POSTGRES_USER:-postgres}
     ports:
       - "${PGADMIN_PORT:-5432}"  
     volumes:
       - pgdata:/var/lib/postgresql/data   
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-U", "${POSTGRES_USER:-postgres}"]
+      test: ["CMD-SHELL", "pg_isready","-d", "${POSTGRES_DB:-postgres}", "-U", "${POSTGRES_USER:-postgres}"]
       interval: 1s
       timeout: 5s
       retries: 10
