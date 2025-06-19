@@ -1,0 +1,56 @@
+version: "3.9"
+services:
+  api:
+    image: 'parseplatform/parse-server:${DOCKER_PARSE-SERVER_VERSION:-latest}'
+    ports:
+      - 1337
+    environment:
+      - PORT=1337
+      - PARSE_SERVER_MOUNT_PATH=/api
+      - PARSE_SERVER_GRAPHQL_PATH=/graphql
+      - PARSE_SERVER_URL=http://api:1337/api
+      - PARSE_PUBLIC_SERVER_URL=https://${SERVER_HOST}/api
+      - PARSE_SERVER_APPLICATION_ID=${APP_ID}
+      - PARSE_SERVER_MASTER_KEY=${APP_MASTER_KEY}
+      - PARSE_SERVER_APP_NAME=${APP_NAME}
+      #- PARSE_SERVER_CLOUD=./cloud/main.js
+      - PARSE_ENABLE_CLOUD_CODE="yes"
+      - PARSE_SERVER_DATABASE_URI=${APP_DB_URI}/${APP_DB_NAME}
+      - PARSE_SERVER_MOUNT_GRAPHQL=true
+      - PARSE_SERVER_MAX_UPLOAD_SIZE=256mb
+      - PARSE_SERVER_ALLOW_CLIENT_CLASS_CREATION=true
+      - PARSE_SERVER_MASTER_KEY_IPS=0.0.0.0/0,::0
+      - PARSE_SERVER_FILES_ADAPTER="@parse/fs-files-adapter"
+      - PARSE_SERVER_FILE_UPLOAD_OPTIONS={"fileExtensions":[".*"],"enableForAnonymousUser":true,"enableForAuthenticatedUser":true,"enableForPublic":true}
+      - PARSE_SERVER_PRESERVE_FILE_NAME=true
+      - VERBOSE=true
+    volumes:
+      - 'parse_api-cloud:/parse-server/cloud'
+      - 'parse_api-logs:/parse-server/logs'
+      - 'parse_api-files:/parse-server/files'
+    restart: always
+      
+  dashboard:
+    image: 'parseplatform/parse-dashboard:${DOCKER_PARSE-DASHBOARD_VERSION:-latest}'
+    depends_on:
+      - api
+    ports:
+      - 4040
+    environment:
+      - HOST=dashboard
+      - PORT=4040
+      - MOUNT_PATH=/dashboard
+      - PARSE_DASHBOARD_ALLOW_INSECURE_HTTP=true
+      - PARSE_DASHBOARD_SERVER_URL=https://${SERVER_HOST}/api
+      - PARSE_DASHBOARD_GRAPHQL_SERVER_URL=https://${SERVER_HOST}/graphql
+      - PARSE_DASHBOARD_MASTER_KEY=${APP_MASTER_KEY}
+      - PARSE_DASHBOARD_APP_ID=${APP_ID}
+      - PARSE_DASHBOARD_APP_NAME=${APP_NAME}
+      - PARSE_DASHBOARD_USER_ID=${PARSE_DASHBOARD_USER}
+      - PARSE_DASHBOARD_USER_PASSWORD=${PARSE_DASHBOARD_PASSWORD}
+    restart: always
+      
+volumes:
+  parse_api-cloud:
+  parse_api-logs:
+  parse_api-files:

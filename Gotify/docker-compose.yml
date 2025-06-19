@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  gotify:
+    image: gotify/server
+    ports:
+      - 80
+    environment:
+      GOTIFY_DEFAULTUSER_PASS: ${GOTIFY_DEFAULTUSER_PASS}
+    volumes:
+      - "gotify-data:/app/data"
+
+volumes:
+  gotify-data:
